@@ -15,6 +15,8 @@ board.hideAvailableMoves = () => {
     let signs = document.getElementsByClassName("circle");
     if(signs != null && signs.length != 0) {
         Array.from(signs).forEach((sign) => {
+            let tile = sign.parentElement;
+            tile.removeEventListener("click", tile.doMove);
             sign.remove();
         });
     }
@@ -29,11 +31,11 @@ board.showAvailableMoves = (i,j) => {
     switch(piece.type){
         case "pawn":
             if(piece.color == "black"){
-                if(virtualBoard[i+1][j].color != "black"){
+                if(virtualBoard[i+1] != null && virtualBoard[i+1][j].color != "black"){
                     board.tileAvailable(i+1, j);
-                    
-                    if(piece.firstMove == null && virtualBoard[i+2][j].color != "black")
-                        board.tileAvailable(i+2, j);
+                    if(virtualBoard[i+2] != null)
+                        if(piece.firstMove == null && virtualBoard[i+2][j].color != "black")
+                            board.tileAvailable(i+2, j);
                 }
             }
             else{
@@ -71,10 +73,9 @@ board.tileAvailable = (i,j) => {
     tile.doMove = () => {
         virtualBoard.move(i,j);
         console.log(tile);
-        tile.removeEventListener("click", tile.doMove);
-        tile.onclick = tile.tryMove;
+        board.hideAvailableMoves();
     }
-    tile.onclick = tile.doMove;
+    tile.addEventListener("click", tile.doMove);
     tile.appendChild(circle);
 
 }
@@ -91,6 +92,7 @@ board.draw = () => {
             tile.className = "tile";
             
             tile.tryMove = () => {
+                console.log("trymove");
                 // checks if there's a piece in the clicked tile
                 if(virtualBoard[i][j].type != "empty"){
                     let color = virtualBoard[i][j].color;
@@ -108,7 +110,7 @@ board.draw = () => {
                 }
             }
 
-            tile.onclick = tile.tryMove;
+            tile.addEventListener("click", tile.tryMove);
 
             if((i + j)%2 == 0){
                 tile.style.backgroundColor = "rgb(145, 85, 25)";
@@ -180,8 +182,10 @@ virtualBoard.render = () => {
             if(pieceType != "empty"){
                 image.src = 'pieces/' + pieceColor + '/' + pieceType + '.png';
             }
-            board.childNodes[i+1].childNodes[j].innerHTML = "";
-            board.childNodes[i+1].childNodes[j].appendChild(image);
+            var tile = board.childNodes[i+1].childNodes[j]
+            tile.innerHTML = "";
+            tile.removeEventListener("click", tile.doMove);
+            tile.appendChild(image);
         }
     }
 }
@@ -190,6 +194,7 @@ virtualBoard.render = () => {
 virtualBoard.move = (i,j) => {
     virtualBoard[i][j] = virtualBoard[movingPiece.i][movingPiece.j];
     virtualBoard[movingPiece.i][movingPiece.j] = { type: "empty" };
+    turn++;
     virtualBoard.render();
 }
 
