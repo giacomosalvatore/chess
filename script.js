@@ -1,5 +1,5 @@
 
-var turn = 1;
+var turn = 0;
 
 // clones an object
 var clone = object => {
@@ -30,29 +30,59 @@ board.showAvailableMoves = (i,j) => {
     board.hideAvailableMoves();
     switch(piece.type){
         case "pawn":
-            if(piece.color == "black"){
-                if(virtualBoard[i+1] != null && virtualBoard[i+1][j].color != "black"){
-                    board.tileAvailable(i+1, j);
-                    if(virtualBoard[i+2] != null)
-                        if(piece.firstMove == null && virtualBoard[i+2][j].color != "black")
-                            board.tileAvailable(i+2, j);
+            let dir = 1;
+            if(piece.color == "white"){
+                dir = -1;
+            }
+            
+            // checks if the row is null
+            // checks if the tile is occupied by a piece
+            if(virtualBoard[i+1*dir] != null && virtualBoard[i+1*dir][j].color == null){
+
+                // forward 1
+                board.tileAvailable(i+1*dir, j);
+
+                // checks if the row is null
+                if(virtualBoard[i+2*dir] != null){
+                    // checks if this its first move
+                    // checks if the tile is occupied by a piece
+                    if(piece.firstMove == null && virtualBoard[i+2*dir][j].color == null){
+
+                        // forward 2
+                        board.tileAvailable(i+2*dir, j);
+                    }
                 }
             }
-            else{
-                board.tileAvailable(i-1, j);
+
+            // checks if the row is null
+            if(virtualBoard[i+1*dir] != null){
+                let diagonal = virtualBoard[i+1*dir][j+1];
+                // checks if the tile is occupied by a piece of its own color
+                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
+                    board.tileAvailable(i+1*dir, j+1);
+                }
                 
-                if(piece.firstMove == null)
-                    board.tileAvailable(i-2, j);
+                diagonal = virtualBoard[i+1*dir][j-1];
+                // checks if the tile is occupied by a piece of its own color
+                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
+                    board.tileAvailable(i+1*dir, j-1);
+                }
             }
+
             break;
+
         case "rook":
             break;
+
         case "knight":
             break;
+
         case "bishop":
             break;
+            
         case "king":
             break;
+
         case "queen":
             break;
     }
@@ -68,16 +98,15 @@ board.tileAvailable = (i,j) => {
     circle.className = "circle";
     
     let tile = board.childNodes[i+1].childNodes[j];
-    console.log(tile, i, j);
 
+    // moves the piece and makes the tiles unavailable
     tile.doMove = () => {
         virtualBoard.move(i,j);
-        console.log(tile);
         board.hideAvailableMoves();
     }
     tile.addEventListener("click", tile.doMove);
-    tile.appendChild(circle);
 
+    tile.appendChild(circle);
 }
 
 // draws the board on the screen
@@ -92,7 +121,6 @@ board.draw = () => {
             tile.className = "tile";
             
             tile.tryMove = () => {
-                console.log("trymove");
                 // checks if there's a piece in the clicked tile
                 if(virtualBoard[i][j].type != "empty"){
                     let color = virtualBoard[i][j].color;
@@ -195,6 +223,7 @@ virtualBoard.move = (i,j) => {
     virtualBoard[i][j] = virtualBoard[movingPiece.i][movingPiece.j];
     virtualBoard[movingPiece.i][movingPiece.j] = { type: "empty" };
     turn++;
+    virtualBoard[i][j].firstMove = false;
     virtualBoard.render();
 }
 
