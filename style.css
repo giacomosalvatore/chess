@@ -9,13 +9,19 @@ body {
     height: min-content;
 }
 
-.tile {
-    height: 12.5vmin;
-    width: 12.5vmin;
-}
-
 .board-row {
     display: flex;
     width: min-content;
     height: min-content;
+}
+
+.tile {
+    height: 12.5vmin;
+    width: 12.5vmin;
+    display: grid;
+    place-items: center;
+}
+
+.tile > img {
+    height: 10vmin;
 }
