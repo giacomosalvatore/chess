@@ -1,5 +1,5 @@
 
-var turn = 0;
+var turn = 1;
 
 // clones an object
 var clone = object => {
@@ -66,10 +66,15 @@ board.tileAvailable = (i,j) => {
     circle.className = "circle";
     
     let tile = board.childNodes[i+1].childNodes[j];
-    tile.onclick = () => {
+    console.log(tile, i, j);
+
+    tile.doMove = () => {
         virtualBoard.move(i,j);
+        console.log(tile);
+        tile.removeEventListener("click", tile.doMove);
         tile.onclick = tile.tryMove;
     }
+    tile.onclick = tile.doMove;
     tile.appendChild(circle);
 
 }
