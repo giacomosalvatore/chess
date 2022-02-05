@@ -1,4 +1,21 @@
-body{
+body {
     margin: 0;
     padding: 0;
+}
+
+#board {
+    background-color: #888;
+    width: min-content;
+    height: min-content;
+}
+
+.tile {
+    height: 12.5vmin;
+    width: 12.5vmin;
+}
+
+.board-row {
+    display: flex;
+    width: min-content;
+    height: min-content;
 }
