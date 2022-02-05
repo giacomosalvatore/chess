@@ -1,8 +1,77 @@
-var board = document.getElementById("board");
+
+var turn = 0;
 
 // clones an object
 var clone = object => {
     return JSON.parse(JSON.stringify(object));
+}
+
+var movingPiece = {};
+
+var board = document.getElementById("board");
+
+// hide available moves
+board.hideAvailableMoves = () => {
+    let signs = document.getElementsByClassName("circle");
+    if(signs != null && signs.length != 0) {
+        Array.from(signs).forEach((sign) => {
+            sign.remove();
+        });
+    }
+}
+
+// show available moves for the given piece
+board.showAvailableMoves = (i,j) => {
+
+    var piece = virtualBoard[i][j];
+    console.log(piece.color, piece.type);
+    board.hideAvailableMoves();
+    switch(piece.type){
+        case "pawn":
+            if(piece.color == "black"){
+                if(virtualBoard[i+1][j].color != "black"){
+                    board.tileAvailable(i+1, j);
+                    
+                    if(piece.firstMove == null && virtualBoard[i+2][j].color != "black")
+                        board.tileAvailable(i+2, j);
+                }
+            }
+            else{
+                board.tileAvailable(i-1, j);
+                
+                if(piece.firstMove == null)
+                    board.tileAvailable(i-2, j);
+            }
+            break;
+        case "rook":
+            break;
+        case "knight":
+            break;
+        case "bishop":
+            break;
+        case "king":
+            break;
+        case "queen":
+            break;
+    }
+
+    movingPiece.i = i;
+    movingPiece.j = j;
+}
+
+
+board.tileAvailable = (i,j) => {
+    // adds a circle on the tile
+    let circle = document.createElement("div");
+    circle.className = "circle";
+    
+    let tile = board.childNodes[i+1].childNodes[j];
+    tile.onclick = () => {
+        virtualBoard.move(i,j);
+        tile.onclick = tile.tryMove;
+    }
+    tile.appendChild(circle);
+
 }
 
 // draws the board on the screen
@@ -15,6 +84,27 @@ board.draw = () => {
         for(let j = 0; j < 8; j++){
             let tile = document.createElement("div");
             tile.className = "tile";
+            
+            tile.tryMove = () => {
+                // checks if there's a piece in the clicked tile
+                if(virtualBoard[i][j].type != "empty"){
+                    let color = virtualBoard[i][j].color;
+                    let movingColor = "black";
+                    if(turn % 2 == 0){
+                        movingColor = "white";
+                    }
+
+                    // checks if the color of the piece is right based on the turn
+                    if(color == movingColor){
+                        if(i != movingPiece.i || j != movingPiece.j){
+                            board.showAvailableMoves(i,j);
+                        }
+                    }
+                }
+            }
+
+            tile.onclick = tile.tryMove;
+
             if((i + j)%2 == 0){
                 tile.style.backgroundColor = "rgb(145, 85, 25)";
             }
@@ -67,12 +157,14 @@ virtualBoard.setupVirtualBoard = () => {
     // colors the pieces 
     for(let i = 0; i < 2; i++){
         for(let j = 0; j < 8; j++){
-            virtualBoard[i][j].color = "white";
-            virtualBoard[7-i][j].color = "black";
+            virtualBoard[i][j].color = "black";
+            virtualBoard[7-i][j].color = "white";
         }
     }
 }
 
+
+// renders the pieces on the board
 virtualBoard.render = () => {
     for(let i = 0; i < 8; i++){
         for(let j = 0; j < 8; j++){
@@ -83,9 +175,17 @@ virtualBoard.render = () => {
             if(pieceType != "empty"){
                 image.src = 'pieces/' + pieceColor + '/' + pieceType + '.png';
             }
+            board.childNodes[i+1].childNodes[j].innerHTML = "";
             board.childNodes[i+1].childNodes[j].appendChild(image);
         }
     }
+}
+
+// moves a piece 
+virtualBoard.move = (i,j) => {
+    virtualBoard[i][j] = virtualBoard[movingPiece.i][movingPiece.j];
+    virtualBoard[movingPiece.i][movingPiece.j] = { type: "empty" };
+    virtualBoard.render();
 }
 
 
