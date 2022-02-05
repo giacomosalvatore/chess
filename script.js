@@ -1,5 +1,10 @@
 var board = document.getElementById("board");
 
+// clones an object
+var clone = object => {
+    return JSON.parse(JSON.stringify(object));
+}
+
 // draws the board on the screen
 board.draw = () => {
     for(let i = 0; i < 8; i++){
@@ -23,99 +28,67 @@ board.draw = () => {
     }
 }
 
-// sets up the board with the pieces
-board.setup = () => {
+// set up the virtual board with the pieces
+var virtualBoard =  [];
+virtualBoard.setupVirtualBoard = () => {
 
-    let image = document.createElement("img");
+    // back line of pieces
+    let piecesLine = [
+        {type:"rook"},
+        {type:"knight"},
+        {type:"bishop"},
+        {type:"king"},
+        {type:"queen"},
+        {type:"bishop"},
+        {type:"knight"},
+        {type:"rook"},
+    ];
+    virtualBoard.push(piecesLine);
 
-    // pawns
+    // line of pawn
+    let pawnLine = [];
     for(let i = 0; i < 8; i++){
-        // white
-        image = document.createElement("img");
-        image.src = "pieces/white/pawn.png";
-        board.childNodes[2].childNodes[i].appendChild(image);
+        pawnLine.push({type:"pawn",});
+    }
+    virtualBoard.push(pawnLine);
 
-        // black
-        image = document.createElement("img");
-        image.src = "pieces/black/pawn.png";
-        board.childNodes[7].childNodes[i].appendChild(image);
+    // empty spots
+    for(let i = 0; i < 4; i++){
+        let emptyLine = [];
+        for(let j = 0; j < 8; j++){
+            emptyLine.push({type:"empty",});
+        }
+        virtualBoard.push(emptyLine);
     }
 
-    // white rooks
-    image = document.createElement("img");
-    image.src = "pieces/white/rook.png";
-    board.childNodes[1].childNodes[0].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/white/rook.png";
-    board.childNodes[1].childNodes[7].appendChild(image);
+    virtualBoard.push(clone(pawnLine));
+    virtualBoard.push(clone(piecesLine));
 
-    // white knights
-    image = document.createElement("img");
-    image.src = "pieces/white/knight.png";
-    board.childNodes[1].childNodes[1].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/white/knight.png";
-    board.childNodes[1].childNodes[6].appendChild(image);
+    // colors the pieces 
+    for(let i = 0; i < 2; i++){
+        for(let j = 0; j < 8; j++){
+            virtualBoard[i][j].color = "white";
+            virtualBoard[7-i][j].color = "black";
+        }
+    }
+}
 
-    // white bishops
-    image = document.createElement("img");
-    image.src = "pieces/white/bishop.png";
-    board.childNodes[1].childNodes[2].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/white/bishop.png";
-    board.childNodes[1].childNodes[5].appendChild(image);
-
-    // white king
-    image = document.createElement("img");
-    image.src = "pieces/white/king.png";
-    board.childNodes[1].childNodes[3].appendChild(image);
-    
-    // white queen
-    image = document.createElement("img");
-    image.src = "pieces/white/queen.png";
-    board.childNodes[1].childNodes[4].appendChild(image);
-
-    // black rooks
-    image = document.createElement("img");
-    image.src = "pieces/black/rook.png";
-    board.childNodes[8].childNodes[0].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/black/rook.png";
-    board.childNodes[8].childNodes[7].appendChild(image);
-
-    // black knights
-    image = document.createElement("img");
-    image.src = "pieces/black/knight.png";
-    board.childNodes[8].childNodes[1].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/black/knight.png";
-    board.childNodes[8].childNodes[6].appendChild(image);
-
-    // black bishops
-    image = document.createElement("img");
-    image.src = "pieces/black/bishop.png";
-    board.childNodes[8].childNodes[2].appendChild(image);
-    
-    image = document.createElement("img");
-    image.src = "pieces/black/bishop.png";
-    board.childNodes[8].childNodes[5].appendChild(image);
-
-    // black king
-    image = document.createElement("img");
-    image.src = "pieces/black/king.png";
-    board.childNodes[8].childNodes[3].appendChild(image);
-    
-    // black queen
-    image = document.createElement("img");
-    image.src = "pieces/black/queen.png";
-    board.childNodes[8].childNodes[4].appendChild(image);
+virtualBoard.render = () => {
+    for(let i = 0; i < 8; i++){
+        for(let j = 0; j < 8; j++){
+            
+            let image = document.createElement("img");
+            let pieceType = virtualBoard[i][j].type;
+            let pieceColor = virtualBoard[i][j].color;
+            if(pieceType != "empty"){
+                image.src = 'pieces/' + pieceColor + '/' + pieceType + '.png';
+            }
+            board.childNodes[i+1].childNodes[j].appendChild(image);
+        }
+    }
 }
 
 
 board.draw();
-board.setup();
+virtualBoard.setupVirtualBoard();
+virtualBoard.render();
