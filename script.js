@@ -117,6 +117,35 @@ board.showAvailableMoves = (i,j) => {
             break;
 
         case "knight":
+            // vertical or horizontal movement
+            for(let axis = 0; axis < 2; axis++){
+                // two steps: towards origin or away
+                for(let d2 = -1; d2 <= 1; d2+=2){
+                    // one step: towards origin or away
+                    for(let d1 = -1; d1 <= 1; d1+=2){
+                        let x = i + 2*d2;
+                        let y = j + 1*d1;
+                        if(axis == 1){
+                            x = i + 1*d1;
+                            y = j + + 2*d2;
+                        }
+
+                        // checks if the tile exists
+                        if(virtualBoard[x] != null && virtualBoard[x][y] != null){
+                            // if the tile is empty marks the tile
+                            if(virtualBoard[x][y].type == "empty"){
+                                board.tileAvailable(x,y);
+                            }
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(virtualBoard[x][y].color != piece.color){
+                                    board.tileAvailable(x,y);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             break;
 
         case "bishop":
