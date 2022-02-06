@@ -73,27 +73,29 @@ board.showAvailableMoves = (i,j) => {
 
         case "rook":
             // a cicle for every direction
-            // down
-            for(let n = i+1, end = false; !end; n++) {
-                // if the row exists then the tile must exist 
-                if(virtualBoard[n] != null){
-                    // if the tile is empty marks the tile
-                    if(virtualBoard[n][j].type == "empty"){
-                        board.tileAvailable(n,j);
+            // up and down
+            for(let d = -1 ; d <= 1 ; d+=2){
+                for(let n = i+1*d, m = j, end = false; !end; n+= 1*d) {
+                    // if the row exists then the tile must exist 
+                    if(virtualBoard[n] != null){
+                        // if the tile is empty marks the tile
+                        if(virtualBoard[n][m].type == "empty"){
+                            board.tileAvailable(n,m);
+                        }
+                        else{
+                            // if the piece is the opposite colour marks the tile
+                            if(virtualBoard[n][m].color != piece.color){
+                                board.tileAvailable(n,m);
+                            }
+                            // stops the search
+                            end = true;
+                        }
                     }
                     else{
-                        // if the piece is the opposite colour marks the tile
-                        if(virtualBoard[n][j].color != piece.color){
-                            board.tileAvailable(n,j);
-                        }
-                        // stops the search
                         end = true;
                     }
-                }
-                else{
-                    end = true;
-                }
 
+                }
             }
             break;
 
