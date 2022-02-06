@@ -73,28 +73,45 @@ board.showAvailableMoves = (i,j) => {
 
         case "rook":
             // a cicle for every direction
-            // up and down
-            for(let d = -1 ; d <= 1 ; d+=2){
-                for(let n = i+1*d, m = j, end = false; !end; n+= 1*d) {
-                    // if the row exists then the tile must exist 
-                    if(virtualBoard[n] != null){
-                        // if the tile is empty marks the tile
-                        if(virtualBoard[n][m].type == "empty"){
-                            board.tileAvailable(n,m);
-                        }
-                        else{
-                            // if the piece is the opposite colour marks the tile
-                            if(virtualBoard[n][m].color != piece.color){
+            // 2 axis: vertical and horizontal
+            for(let axis = 0; axis < 2; axis++){
+                // 2 directions : away from the origin and towards
+                for(let d = -1 ; d <= 1 ; d+=2){
+                    // applies direction based on the axis
+                    let n = i+1*d, m = j;
+                    if(axis == 1){
+                        n = i;
+                        m = j+1*d;
+                    }
+                    // marks the spot until it reaches a piece or the end of the board
+                    for(let end = false; !end; ) {
+                        // checks if the tile exists
+                        if(virtualBoard[n] != null && virtualBoard[n][m] != null){
+                            // if the tile is empty marks the tile
+                            if(virtualBoard[n][m].type == "empty"){
                                 board.tileAvailable(n,m);
                             }
-                            // stops the search
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(virtualBoard[n][m].color != piece.color){
+                                    board.tileAvailable(n,m);
+                                }
+                                // stops the search
+                                end = true;
+                            }
+                        }
+                        else{
                             end = true;
                         }
-                    }
-                    else{
-                        end = true;
-                    }
 
+                        // updates the coordinate according to axis and direction
+                        if(axis == 0){
+                            n+= 1*d;
+                        }
+                        else if (axis == 1){
+                            m+= 1*d;
+                        }
+                    }
                 }
             }
             break;
