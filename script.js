@@ -6,8 +6,6 @@ var clone = object => {
     return JSON.parse(JSON.stringify(object));
 }
 
-var movingPiece = {};
-
 var board = document.getElementById("board");
 
 // hide available moves
@@ -37,8 +35,8 @@ board.showAvailableMoves = (i,j) => {
         }
     }
 
-    movingPiece.i = i;
-    movingPiece.j = j;
+    virtualBoard.movingPiece.i = i;
+    virtualBoard.movingPiece.j = j;
 }
 
 
@@ -81,7 +79,7 @@ board.draw = () => {
 
                     // checks if the color of the piece is right based on the turn
                     if(color == movingColor){
-                        if(i != movingPiece.i || j != movingPiece.j){
+                        if(i != virtualBoard.movingPiece.i || j != virtualBoard.movingPiece.j){
                             board.showAvailableMoves(i,j);
                         }
                     }
@@ -105,6 +103,9 @@ board.draw = () => {
 
 // set up the virtual board with the pieces
 var virtualBoard =  [];
+
+virtualBoard.movingPiece = {};
+
 virtualBoard.setupVirtualBoard = () => {
 
     // back line of pieces
@@ -170,8 +171,8 @@ virtualBoard.render = () => {
 
 // moves a piece 
 virtualBoard.move = (i,j) => {
-    virtualBoard[i][j] = virtualBoard[movingPiece.i][movingPiece.j];
-    virtualBoard[movingPiece.i][movingPiece.j] = { type: "empty" };
+    virtualBoard[i][j] = virtualBoard[virtualBoard.movingPiece.i][virtualBoard.movingPiece.j];
+    virtualBoard[virtualBoard.movingPiece.i][virtualBoard.movingPiece.j] = { type: "empty" };
     turn++;
     virtualBoard[i][j].firstMove = false;
     virtualBoard.render();
