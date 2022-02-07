@@ -188,6 +188,7 @@ class VirtualBoard{
         this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
         this.turn++;
         this.virtualBoard[i][j].firstMove = false;
+        console.log(this.isOnCheck());
     }
 
     // returns the board
@@ -417,6 +418,49 @@ class VirtualBoard{
         }
 
         return availableMoves;
+    }
+
+    // verifies if the board has a check by piece color
+    isOnCheck(){
+        let check = false;
+
+        let pColor = "white";
+        if(this.turn%2 == 1){
+            pColor = "black";
+        }
+
+        let kingX, kingY;
+
+        // searches for the king
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                let piece = this.virtualBoard[i][j];
+                if(piece.type == "king" && piece.color == pColor){
+                    kingX = i;
+                    kingY = j;
+                    break;
+                }
+            }
+        }
+        // saves the moving piece position
+        let mP = clone(this.movingPiece);
+        // for every piece, gets the available moves to see if the king's coordinates are available
+        this.turn++;
+        for(let i = 0; i<8 && !check; i++){
+            for(let j = 0; j<8 && !check; j++){
+                if(this.virtualBoard[i][j].color != pColor){
+                    if(this.moving(i,j)){
+                        let available = this.getAvailableMoves();
+                        if(available[kingX][kingY]){
+                            check = true;
+                        }
+                    }
+                }
+            }
+        }
+        this.turn--;
+        this.movingPiece = mP;
+        return check;
     }
 }
 
