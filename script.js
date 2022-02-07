@@ -25,137 +25,16 @@ board.hideAvailableMoves = () => {
 // show available moves for the given piece
 board.showAvailableMoves = (i,j) => {
 
-    var piece = virtualBoard[i][j];
-    console.log(piece.color, piece.type);
     board.hideAvailableMoves();
-    switch(piece.type){
-        case "pawn":
-            let dir = 1;
-            if(piece.color == "white"){
-                dir = -1;
+    
+    let availableMoves = virtualBoard.getAvailableMoves(i,j);
+    for(let n = 0; n < availableMoves.length; n++){
+        let row = availableMoves[n];
+        for(let m = 0; m < row.length; m++){
+            if(row[m]){
+                board.tileAvailable(n,m);
             }
-            
-            // checks if the row is null
-            // checks if the tile is occupied by a piece
-            if(virtualBoard[i+1*dir] != null && virtualBoard[i+1*dir][j].color == null){
-
-                // forward 1
-                board.tileAvailable(i+1*dir, j);
-
-                // checks if the row is null
-                if(virtualBoard[i+2*dir] != null){
-                    // checks if this its first move
-                    // checks if the tile is occupied by a piece
-                    if(piece.firstMove == null && virtualBoard[i+2*dir][j].color == null){
-
-                        // forward 2
-                        board.tileAvailable(i+2*dir, j);
-                    }
-                }
-            }
-
-            // checks if the row is null
-            if(virtualBoard[i+1*dir] != null){
-                let diagonal = virtualBoard[i+1*dir][j+1];
-                // checks if the tile is occupied by a piece of its own color
-                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
-                    board.tileAvailable(i+1*dir, j+1);
-                }
-                
-                diagonal = virtualBoard[i+1*dir][j-1];
-                // checks if the tile is occupied by a piece of its own color
-                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
-                    board.tileAvailable(i+1*dir, j-1);
-                }
-            }
-
-            break;
-
-        case "rook":
-            // a cicle for every direction
-            // 2 axis: vertical and horizontal
-            for(let axis = 0; axis < 2; axis++){
-                // 2 directions : away from the origin and towards
-                for(let d = -1 ; d <= 1 ; d+=2){
-                    // applies direction based on the axis
-                    let n = i+1*d, m = j;
-                    if(axis == 1){
-                        n = i;
-                        m = j+1*d;
-                    }
-                    // marks the spot until it reaches a piece or the end of the board
-                    for(let end = false; !end; ) {
-                        // checks if the tile exists
-                        if(virtualBoard[n] != null && virtualBoard[n][m] != null){
-                            // if the tile is empty marks the tile
-                            if(virtualBoard[n][m].type == "empty"){
-                                board.tileAvailable(n,m);
-                            }
-                            else{
-                                // if the piece is the opposite colour marks the tile
-                                if(virtualBoard[n][m].color != piece.color){
-                                    board.tileAvailable(n,m);
-                                }
-                                // stops the search
-                                end = true;
-                            }
-                        }
-                        else{
-                            end = true;
-                        }
-
-                        // updates the coordinate according to axis and direction
-                        if(axis == 0){
-                            n+= 1*d;
-                        }
-                        else if (axis == 1){
-                            m+= 1*d;
-                        }
-                    }
-                }
-            }
-            break;
-
-        case "knight":
-            // vertical or horizontal movement
-            for(let axis = 0; axis < 2; axis++){
-                // two steps: towards origin or away
-                for(let d2 = -1; d2 <= 1; d2+=2){
-                    // one step: towards origin or away
-                    for(let d1 = -1; d1 <= 1; d1+=2){
-                        let x = i + 2*d2;
-                        let y = j + 1*d1;
-                        if(axis == 1){
-                            x = i + 1*d1;
-                            y = j + + 2*d2;
-                        }
-
-                        // checks if the tile exists
-                        if(virtualBoard[x] != null && virtualBoard[x][y] != null){
-                            // if the tile is empty marks the tile
-                            if(virtualBoard[x][y].type == "empty"){
-                                board.tileAvailable(x,y);
-                            }
-                            else{
-                                // if the piece is the opposite colour marks the tile
-                                if(virtualBoard[x][y].color != piece.color){
-                                    board.tileAvailable(x,y);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            break;
-
-        case "bishop":
-            break;
-            
-        case "king":
-            break;
-
-        case "queen":
-            break;
+        }
     }
 
     movingPiece.i = i;
@@ -296,6 +175,153 @@ virtualBoard.move = (i,j) => {
     turn++;
     virtualBoard[i][j].firstMove = false;
     virtualBoard.render();
+}
+
+// returns the available moves for a given piece
+virtualBoard.getAvailableMoves = (i,j) => {
+
+    var piece = virtualBoard[i][j];
+
+    var availableMoves = [];
+    for(let n = 0; n < 8; n++) {
+        var row = [];
+        for(let m = 0; m < 8; m++){
+            row.push(false);
+        }
+        availableMoves.push(row);
+    }
+
+    switch(piece.type){
+        case "pawn":
+            let dir = 1;
+            if(piece.color == "white"){
+                dir = -1;
+            }
+            
+            // checks if the row is null
+            // checks if the tile is occupied by a piece
+            if(virtualBoard[i+1*dir] != null && virtualBoard[i+1*dir][j].color == null){
+
+                // forward 1
+                availableMoves[i+1*dir][j] = true;
+
+                // checks if the row is null
+                if(virtualBoard[i+2*dir] != null){
+                    // checks if this its first move
+                    // checks if the tile is occupied by a piece
+                    if(piece.firstMove == null && virtualBoard[i+2*dir][j].color == null){
+
+                        // forward 2
+                        availableMoves[i+2*dir][j] = true;
+                    }
+                }
+            }
+
+            // checks if the row is null
+            if(virtualBoard[i+1*dir] != null){
+                let diagonal = virtualBoard[i+1*dir][j+1];
+                // checks if the tile is occupied by a piece of its own color
+                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
+                    availableMoves[i+1*dir][j+1] = true;
+                }
+                
+                diagonal = virtualBoard[i+1*dir][j-1];
+                // checks if the tile is occupied by a piece of its own color
+                if(diagonal != null && diagonal.color != null && diagonal.color != piece.color){
+                    availableMoves[i+1*dir][j-1] = true;
+                }
+            }
+
+            break;
+
+        case "rook":
+            // a cicle for every direction
+            // 2 axis: vertical and horizontal
+            for(let axis = 0; axis < 2; axis++){
+                // 2 directions : away from the origin and towards
+                for(let d = -1 ; d <= 1 ; d+=2){
+                    // applies direction based on the axis
+                    let n = i+1*d, m = j;
+                    if(axis == 1){
+                        n = i;
+                        m = j+1*d;
+                    }
+                    // marks the spot until it reaches a piece or the end of the board
+                    for(let end = false; !end; ) {
+                        // checks if the tile exists
+                        if(virtualBoard[n] != null && virtualBoard[n][m] != null){
+                            // if the tile is empty marks the tile
+                            if(virtualBoard[n][m].type == "empty"){
+                                availableMoves[n][m] = true;
+                            }
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(virtualBoard[n][m].color != piece.color){
+                                    availableMoves[n][m] = true;
+                                }
+                                // stops the search
+                                end = true;
+                            }
+                        }
+                        else{
+                            end = true;
+                        }
+
+                        // updates the coordinate according to axis and direction
+                        if(axis == 0){
+                            n+= 1*d;
+                        }
+                        else if (axis == 1){
+                            m+= 1*d;
+                        }
+                    }
+                }
+            }
+            break;
+
+        case "knight":
+            // vertical or horizontal movement
+            for(let axis = 0; axis < 2; axis++){
+                // two steps: towards origin or away
+                for(let d2 = -1; d2 <= 1; d2+=2){
+                    // one step: towards origin or away
+                    for(let d1 = -1; d1 <= 1; d1+=2){
+                        let x = i + 2*d2;
+                        let y = j + 1*d1;
+                        if(axis == 1){
+                            x = i + 1*d1;
+                            y = j + + 2*d2;
+                        }
+
+                        // checks if the tile exists
+                        if(virtualBoard[x] != null && virtualBoard[x][y] != null){
+                            // if the tile is empty marks the tile
+                            if(virtualBoard[x][y].type == "empty"){
+                                availableMoves[x][y] = true;
+                            }
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(virtualBoard[x][y].color != piece.color){
+                                    availableMoves[x][y] = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+
+        case "bishop":
+            break;
+            
+        case "king":
+            break;
+
+        case "queen":
+            break;
+    }
+
+    return availableMoves;
 }
 
 
