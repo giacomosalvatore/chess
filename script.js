@@ -216,6 +216,7 @@ class VirtualBoard{
                     dir = -1;
                 }
                 
+                // forward movement
                 // checks if the row is null
                 // checks if the tile is occupied by a piece
                 if(this.virtualBoard[i+1*dir] != null && this.virtualBoard[i+1*dir][j].color == null){
@@ -235,6 +236,7 @@ class VirtualBoard{
                     }
                 }
 
+                // diagonal captures
                 // checks if the row is null
                 if(this.virtualBoard[i+1*dir] != null){
                     let diagonal = this.virtualBoard[i+1*dir][j+1];
@@ -249,6 +251,8 @@ class VirtualBoard{
                         availableMoves[i+1*dir][j-1] = true;
                     }
                 }
+
+                // en passant
 
                 break;
 
@@ -405,6 +409,9 @@ class VirtualBoard{
                         }
                     }
                 }
+
+                // castling
+
                 break;
 
         }
