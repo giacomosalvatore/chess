@@ -212,10 +212,10 @@ board.draw = () => {
             tile.addEventListener("click", tile.tryMove);
 
             if((i + j)%2 == 0){
-                tile.style.backgroundColor = "rgb(145, 85, 25)";
+                tile.style.backgroundColor = "rgb(206, 133, 60)";
             }
             else{
-                tile.style.backgroundColor = "rgb(206, 133, 60)";
+                tile.style.backgroundColor = "rgb(145, 85, 25)";
             }
             boardRow.appendChild(tile);
         }
@@ -233,8 +233,8 @@ virtualBoard.setupVirtualBoard = () => {
         {type:"rook"},
         {type:"knight"},
         {type:"bishop"},
-        {type:"king"},
         {type:"queen"},
+        {type:"king"},
         {type:"bishop"},
         {type:"knight"},
         {type:"rook"},
