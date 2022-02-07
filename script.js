@@ -312,6 +312,32 @@ virtualBoard.getAvailableMoves = (i,j) => {
             break;
 
         case "bishop":
+            for(let dx = -1; dx <= 1; dx += 2){
+                for(let dy = -1; dy <= 1; dy += 2){
+                    for(let c = 1, end = false; !end; c++) {
+                        let x = i+c*dx;
+                        let y = j+c*dy;
+                        // checks if the tile exists
+                        if(virtualBoard[x] != null && virtualBoard[x][y] != null){
+                            // if the tile is empty marks the tile
+                            if(virtualBoard[x][y].type == "empty"){
+                                availableMoves[x][y] = true;
+                            }
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(virtualBoard[x][y].color != piece.color){
+                                    availableMoves[x][y] = true;
+                                }
+                                // stops the search
+                                end = true;
+                            }
+                        }
+                        else{
+                            end = true;
+                        }
+                    }
+                }
+            }
             break;
             
         case "king":
