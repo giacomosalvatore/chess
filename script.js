@@ -388,6 +388,23 @@ class VirtualBoard{
                 break; 
 
             case "king":
+                for(let x = i-1; x <= i+1; x++){
+                    for(let y = j-1; y <= j+1; y++){
+                        // checks if the tile exists
+                        if(this.virtualBoard[x] != null && this.virtualBoard[x][y] != null){
+                            // if the tile is empty marks the tile
+                            if(this.virtualBoard[x][y].type == "empty"){
+                                availableMoves[x][y] = true;
+                            }
+                            else{
+                                // if the piece is the opposite colour marks the tile
+                                if(this.virtualBoard[x][y].color != piece.color){
+                                    availableMoves[x][y] = true;
+                                }
+                            }
+                        }
+                    }
+                }
                 break;
 
         }
