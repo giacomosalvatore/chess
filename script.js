@@ -1,5 +1,4 @@
 
-var turn = 0;
 
 // clones an object
 var clone = object => {
@@ -21,11 +20,11 @@ board.hideAvailableMoves = () => {
 }
 
 // show available moves for the given piece
-board.showAvailableMoves = (i,j) => {
+board.showAvailableMoves = () => {
 
     board.hideAvailableMoves();
     
-    let availableMoves = virtual.getAvailableMoves(i,j);
+    let availableMoves = virtual.getAvailableMoves();
     for(let n = 0; n < availableMoves.length; n++){
         let row = availableMoves[n];
         for(let m = 0; m < row.length; m++){
@@ -35,8 +34,6 @@ board.showAvailableMoves = (i,j) => {
         }
     }
 
-    virtual.movingPiece.i = i;
-    virtual.movingPiece.j = j;
 }
 
 
@@ -51,6 +48,7 @@ board.tileAvailable = (i,j) => {
     tile.doMove = () => {
         virtual.move(i,j);
         board.hideAvailableMoves();
+        board.render();
     }
     tile.addEventListener("click", tile.doMove);
 
@@ -69,20 +67,8 @@ board.draw = () => {
             tile.className = "tile";
             
             tile.tryMove = () => {
-                // checks if there's a piece in the clicked tile
-                if(virtual.board()[i][j].type != "empty"){
-                    let color = virtual.board()[i][j].color;
-                    let movingColor = "black";
-                    if(turn % 2 == 0){
-                        movingColor = "white";
-                    }
-
-                    // checks if the color of the piece is right based on the turn
-                    if(color == movingColor){
-                        if(i != virtual.movingPiece.i || j != virtual.movingPiece.j){
-                            board.showAvailableMoves(i,j);
-                        }
-                    }
+                if(virtual.moving(i,j)){
+                    board.showAvailableMoves();
                 }
             }
 
@@ -127,6 +113,7 @@ class VirtualBoard{
         this.virtualBoard = [];
         this.setupVirtualBoard();
         this.movingPiece = {};
+        this.turn = 0;
     }
     
     // set up the virtual board with the pieces
@@ -173,13 +160,34 @@ class VirtualBoard{
         }
     }
 
+    // set the moving piece if it can move, returns result
+    moving(i,j){
+        // checks if there's a piece in the clicked tile
+        if(this.virtualBoard[i][j].type != "empty"){
+            let color = this.virtualBoard[i][j].color;
+            let movingColor = "black";
+            if(this.turn % 2 == 0){
+                movingColor = "white";
+            }
+
+            // checks if the color of the piece is right based on the turn
+            if(color == movingColor){
+                if(i != this.movingPiece.i || j != this.movingPiece.j){
+                    this.movingPiece.i = i;
+                    this.movingPiece.j = j;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     // moves a piece 
     move(i,j) {
         this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
         this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
-        turn++;
+        this.turn++;
         this.virtualBoard[i][j].firstMove = false;
-        board.render();
     }
 
     // returns the board
@@ -188,7 +196,7 @@ class VirtualBoard{
     }
 
     // returns the available moves for a given piece
-    getAvailableMoves = (i,j) => {
+    getAvailableMoves = (i = this.movingPiece.i ,j = this.movingPiece.j) => {
 
         var piece = this.virtualBoard[i][j];
 
