@@ -197,6 +197,20 @@ class VirtualBoard{
             this.kingCoords[this.virtualBoard[i][j].color].i = i;
             this.kingCoords[this.virtualBoard[i][j].color].j = j;
         }
+
+        // if the moves is in the real virtual board
+        if(this == virtual && this.isCheckMate()){
+            let winner = "white", loser = "black";
+            if(this.turn%2 == 0){
+                winner = "black";
+                loser = "white";
+            }
+            let string = "CheckMate!\n"+winner+" wins!";
+            if(!this.isOnCheck(loser)){
+                string = "StealMate"
+            }
+            setTimeout(() => {alert(string);}, 10);
+        }
     }
 
     // returns the board
@@ -469,6 +483,33 @@ class VirtualBoard{
             cloneBoard.move(n,m);
         }
         return cloneBoard.isOnCheck(this.virtualBoard[i][j].color);
+    }
+
+    // verifies if the mover is on checkmate
+    isCheckMate(){
+        let checkMate = true;
+        let pColor = "white";
+        if(this.turn%2 == 1){
+            pColor = "black";
+        }
+        // checks every piece of the board
+        for(let i = 0; i < 8 && checkMate; i++){
+            for(let j = 0; j < 8 && checkMate; j++){
+                // if the piece matches the player color checks if it can move
+                if(this.virtualBoard[i][j].color == pColor){
+                    let available = this.getAvailableMoves(i,j);
+                    for(let k = 0; k < 8 && checkMate; k++){
+                        for(let m = 0; m < 8 && checkMate; m++){
+                            if(available[k][m]){
+                                checkMate = false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return checkMate;
     }
     
     // clones the instance in a new instance
