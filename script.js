@@ -461,7 +461,9 @@ class VirtualBoard{
         return check;
     }
 
+    // verifies if the mover, with the specified move, would be on check
     wouldBeOnCheck(i,j, n,m){
+        // clones the board to try moves beforehand
         let cloneBoard = this.clone();
         if(cloneBoard.moving(i,j)){
             cloneBoard.move(n,m);
