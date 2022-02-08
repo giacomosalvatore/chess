@@ -114,6 +114,10 @@ class VirtualBoard{
         this.setupVirtualBoard();
         this.movingPiece = {};
         this.turn = 0;
+        this.kingCoords = {
+            "white": {i: 7, j: 4},
+            "black": {i: 0, j: 4},
+        };
     }
     
     // set up the virtual board with the pieces
@@ -164,6 +168,7 @@ class VirtualBoard{
     moving(i,j){
         // checks if there's a piece in the clicked tile
         if(this.virtualBoard[i][j].type != "empty"){
+               
             let color = this.virtualBoard[i][j].color;
             let movingColor = "black";
             if(this.turn % 2 == 0){
@@ -172,11 +177,11 @@ class VirtualBoard{
 
             // checks if the color of the piece is right based on the turn
             if(color == movingColor){
-                if(i != this.movingPiece.i || j != this.movingPiece.j){
+                // if(i != this.movingPiece.i || j != this.movingPiece.j){
                     this.movingPiece.i = i;
                     this.movingPiece.j = j;
                     return true;
-                }
+                // }
             }
         }
         return false;
@@ -188,7 +193,10 @@ class VirtualBoard{
         this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
         this.turn++;
         this.virtualBoard[i][j].firstMove = false;
-        console.log(this.isOnCheck());
+        if(this.virtualBoard[i][j].type == "king"){
+            this.kingCoords[this.virtualBoard[i][j].color].i = i;
+            this.kingCoords[this.virtualBoard[i][j].color].j = j;
+        }
     }
 
     // returns the board
@@ -197,7 +205,7 @@ class VirtualBoard{
     }
 
     // returns the available moves for a given piece
-    getAvailableMoves = (i = this.movingPiece.i ,j = this.movingPiece.j) => {
+    getAvailableMoves = (i = this.movingPiece.i ,j = this.movingPiece.j, simple = false) => {
 
         var piece = this.virtualBoard[i][j];
 
@@ -417,50 +425,64 @@ class VirtualBoard{
 
         }
 
-        return availableMoves;
-    }
-
-    // verifies if the board has a check by piece color
-    isOnCheck(){
-        let check = false;
-
-        let pColor = "white";
-        if(this.turn%2 == 1){
-            pColor = "black";
-        }
-
-        let kingX, kingY;
-
-        // searches for the king
-        for(let i = 0; i < 8; i++){
-            for(let j = 0; j < 8; j++){
-                let piece = this.virtualBoard[i][j];
-                if(piece.type == "king" && piece.color == pColor){
-                    kingX = i;
-                    kingY = j;
-                    break;
-                }
-            }
-        }
-        // saves the moving piece position
-        let mP = clone(this.movingPiece);
-        // for every piece, gets the available moves to see if the king's coordinates are available
-        this.turn++;
-        for(let i = 0; i<8 && !check; i++){
-            for(let j = 0; j<8 && !check; j++){
-                if(this.virtualBoard[i][j].color != pColor){
-                    if(this.moving(i,j)){
-                        let available = this.getAvailableMoves();
-                        if(available[kingX][kingY]){
-                            check = true;
-                        }
+        // deletes the moves that would mean check
+        if(!simple){
+            for(let n = 0; n < 8; n++) {
+                for(let m = 0; m < 8; m++){
+                    if(availableMoves[n][m] && this.wouldBeOnCheck(i, j, n, m)){
+                        availableMoves[n][m] = false;
                     }
                 }
             }
         }
-        this.turn--;
-        this.movingPiece = mP;
+        
+        return availableMoves;
+    }
+
+    // verifies if the board has a check by piece color
+    isOnCheck(pColor){
+        let check = false;
+        let kingX = this.kingCoords[pColor].i;
+        let kingY = this.kingCoords[pColor].j;
+        
+        // for every opponent's piece, 
+        // gets the available moves to see if its king's coordinates are available
+        for(let i = 0; i<8 && !check; i++){
+            for(let j = 0; j<8 && !check; j++){
+                let piece = this.virtualBoard[i][j];
+                if(piece.color != pColor && piece.type != "empty"){
+                    let available = this.getAvailableMoves(i,j, true);
+                    if(available[kingX][kingY]){
+                        check = true;
+                    }
+                }
+            }
+        }
         return check;
+    }
+
+    wouldBeOnCheck(i,j, n,m){
+        let cloneBoard = this.clone();
+        if(cloneBoard.moving(i,j)){
+            cloneBoard.move(n,m);
+        }
+        return cloneBoard.isOnCheck(this.virtualBoard[i][j].color);
+    }
+    
+    // clones the instance in a new instance
+    clone(){
+        let vb = new VirtualBoard();
+        for(let i = 0; i < 8; i++){
+            for(let j = 0; j < 8; j++){
+                vb.virtualBoard[i][j] = clone(this.virtualBoard[i][j]);
+            }
+        }
+        
+        vb.movingPiece = clone(this.movingPiece);
+        vb.turn = clone(this.turn);
+        vb.kingCoords = clone(this.kingCoords);
+
+        return vb;
     }
 }
 
