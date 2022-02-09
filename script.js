@@ -218,8 +218,11 @@ class VirtualBoard{
 
         // if a enPassant has been set in this turn (turn has already been increased)
         if(this.enPassant != null && this.enPassant.turn == this.turn -1){
-            // captures the piece
-            this.virtualBoard[this.enPassant.i][this.enPassant.j] = { type: "empty" };
+            // if the moving piece is the same that set the en passant
+            if(this.enPassant.i == this.movingPiece.i && this.enPassant.j == this.movingPiece.j){
+                // captures the piece
+                this.virtualBoard[this.enPassant.n][this.enPassant.m] = { type: "empty" };
+            }
         }
         
         // if the moves is in the real virtual board
@@ -311,7 +314,9 @@ class VirtualBoard{
                             this.enPassant = {};
                             this.enPassant.turn = clone(this.turn);
                             this.enPassant.i = i;
-                            this.enPassant.j = j+1*n
+                            this.enPassant.j = j;
+                            this.enPassant.n = i;
+                            this.enPassant.m = j+1*n;
 
                             // sets the next tile as available
                             availableMoves[i+1*dir][j+1*n] = true;
