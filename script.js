@@ -195,6 +195,12 @@ class VirtualBoard{
         // castling
         if(this.virtualBoard[i][j].color == this.virtualBoard[this.movingPiece.i][this.movingPiece.j].color){
             let dir = this.castleDir;
+
+            // tracks the king's position
+            this.kingCoords[this.virtualBoard[i][j].color].i = this.movingPiece.i;
+            this.kingCoords[this.virtualBoard[i][j].color].j = this.movingPiece.j + 2*dir;
+            if(this == virtual)console.log(this.kingCoords);
+
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 2*dir] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 1*dir] = this.virtualBoard[i][j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
@@ -203,16 +209,17 @@ class VirtualBoard{
         else{
             this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
+            
+            // tracks the king's position
+            if(this.virtualBoard[i][j].type == "king"){
+                this.kingCoords[this.virtualBoard[i][j].color].i = i;
+                this.kingCoords[this.virtualBoard[i][j].color].j = j;
+            }
         }
 
         this.turn++;
         this.virtualBoard[i][j].firstMove = false;
 
-        // tracks the king's position
-        if(this.virtualBoard[i][j].type == "king"){
-            this.kingCoords[this.virtualBoard[i][j].color].i = i;
-            this.kingCoords[this.virtualBoard[i][j].color].j = j;
-        }
 
         this.virtualBoard[i][j].lastMoveTurn = this.turn;
 
@@ -506,13 +513,11 @@ class VirtualBoard{
                                     spaces = 2;
                                 }
                                 for(let s = j+1*direction; s*direction <= (j+spaces*direction)*direction && empty; s+=1*direction){
-                                    console.log(kingI,s);
                                     if(this.virtualBoard[kingI][s].type != "empty"){
                                         empty = false;
                                     }
                                 }
                                 if(empty){
-                                    console.log("here empty");
                                     // cant do it if on check
                                     if(!this.isOnCheck(piece.color)){
                                         // cant do it if land on check
