@@ -198,6 +198,15 @@ class VirtualBoard{
             this.kingCoords[this.virtualBoard[i][j].color].j = j;
         }
 
+        this.virtualBoard[i][j].lastMoveTurn = this.turn;
+
+        // if a enPassant has been set in this turn (turn has already been increased)
+        if(this.enPassant != null && this.enPassant.turn == this.turn -1){
+            // captures the piece
+            this.virtualBoard[this.enPassant.i][this.enPassant.j] = { type: "empty" };
+        }
+
+        
         // if the moves is in the real virtual board
         if(this == virtual && this.isCheckMate()){
             let winner = "white", loser = "black";
@@ -276,6 +285,24 @@ class VirtualBoard{
                 }
 
                 // en passant
+                // n for direction leftright
+                for(let n = -1; n <= 1; n+=2){
+                    let sideSpot = this.virtualBoard[i][j+1*n];
+                    // if on the side there's a pawn that just moved
+                    if(sideSpot != null && sideSpot.type == "pawn" && sideSpot.lastMoveTurn == this.turn){
+                        // if the pawn is 2 rows away from his original position
+                        if(i == (7+dir)/2){
+                            // sets the en passant object
+                            this.enPassant = {};
+                            this.enPassant.turn = clone(this.turn);
+                            this.enPassant.i = i;
+                            this.enPassant.j = j+1*n
+
+                            // sets the next tile as available
+                            availableMoves[i+1*dir][j+1*n] = true;
+                        }
+                    }
+                }
 
                 break;
 
