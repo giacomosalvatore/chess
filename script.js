@@ -199,7 +199,6 @@ class VirtualBoard{
             // tracks the king's position
             this.kingCoords[this.virtualBoard[i][j].color].i = this.movingPiece.i;
             this.kingCoords[this.virtualBoard[i][j].color].j = this.movingPiece.j + 2*dir;
-            if(this == virtual)console.log(this.kingCoords);
 
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 2*dir] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 1*dir] = this.virtualBoard[i][j];
@@ -209,7 +208,7 @@ class VirtualBoard{
         else{
             this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
-            
+
             // tracks the king's position
             if(this.virtualBoard[i][j].type == "king"){
                 this.kingCoords[this.virtualBoard[i][j].color].i = i;
