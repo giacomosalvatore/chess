@@ -14,6 +14,7 @@ board.hideAvailableMoves = () => {
         Array.from(signs).forEach((sign) => {
             let tile = sign.parentElement;
             tile.removeEventListener("click", tile.doMove);
+            tile.addEventListener("click", tile.tryMove);
             sign.remove();
         });
     }
@@ -51,6 +52,7 @@ board.tileAvailable = (i,j) => {
         board.render();
     }
     tile.addEventListener("click", tile.doMove);
+    tile.removeEventListener("click", tile.tryMove);
 
     tile.appendChild(circle);
 }
@@ -189,10 +191,24 @@ class VirtualBoard{
 
     // moves a piece 
     move(i,j) {
-        this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
-        this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
+
+        // castling
+        if(this.virtualBoard[i][j].color == this.virtualBoard[this.movingPiece.i][this.movingPiece.j].color){
+            let dir = this.castleDir;
+            this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 2*dir] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
+            this.virtualBoard[this.movingPiece.i][this.movingPiece.j + 1*dir] = this.virtualBoard[i][j];
+            this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
+            this.virtualBoard[i][j] = { type: "empty" };
+        }
+        else{
+            this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
+            this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
+        }
+
         this.turn++;
         this.virtualBoard[i][j].firstMove = false;
+
+        // tracks the king's position
         if(this.virtualBoard[i][j].type == "king"){
             this.kingCoords[this.virtualBoard[i][j].color].i = i;
             this.kingCoords[this.virtualBoard[i][j].color].j = j;
@@ -205,7 +221,6 @@ class VirtualBoard{
             // captures the piece
             this.virtualBoard[this.enPassant.i][this.enPassant.j] = { type: "empty" };
         }
-
         
         // if the moves is in the real virtual board
         if(this == virtual && this.isCheckMate()){
@@ -460,7 +475,55 @@ class VirtualBoard{
                     }
                 }
 
-                // castling
+                // castling rules: 
+                // can't if rook or king already moved +
+                // can't if there's pieces in between +
+                // cant if oncheck +
+                // cant if landoncheck +
+                // cant if pass through check
+                let kingJ = 4;
+                let kingI = 0;
+                if(this.turn%2 == 0){
+                    kingI = 7;
+                }
+                // don't need it in "simple" because it's not an offensive move and can't capture
+                if(kingI == i && kingJ == j && !simple){
+                    for(let col = 0, direction = -1; col <= 7; col += 7, direction +=2){
+                        // checks both sides in the spot where the rooks should be
+                        let rook = this.virtualBoard[kingI][col];
+                        if(rook.type == "rook" && rook.color == piece.color){
+                            // they shouldnt have moved yet
+                            if(rook.firstMove == null && piece.firstMove == null){
+                                // the spots in between should be empty
+                                let empty = true;
+                                let spaces = 3;
+                                if(direction == 1){
+                                    spaces = 2;
+                                }
+                                for(let s = j+1*direction; s*direction <= (j+spaces*direction)*direction && empty; s+=1*direction){
+                                    console.log(kingI,s);
+                                    if(this.virtualBoard[kingI][s].type != "empty"){
+                                        empty = false;
+                                    }
+                                }
+                                if(empty){
+                                    console.log("here empty");
+                                    // cant do it if on check
+                                    if(!this.isOnCheck(piece.color)){
+                                        // cant do it if land on check
+                                        if(!this.wouldBeOnCheck(i,j, i, j+2*direction)){
+                                            // cant if pass through check
+                                            if(!this.wouldBeOnCheck(i,j, i, j+1*direction)){
+                                                availableMoves[kingI][col] = true;
+                                                this.castleDir = direction;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 break;
 
@@ -485,7 +548,6 @@ class VirtualBoard{
         let check = false;
         let kingX = this.kingCoords[pColor].i;
         let kingY = this.kingCoords[pColor].j;
-        
         // for every opponent's piece, 
         // gets the available moves to see if its king's coordinates are available
         for(let i = 0; i<8 && !check; i++){
@@ -506,10 +568,12 @@ class VirtualBoard{
     wouldBeOnCheck(i,j, n,m){
         // clones the board to try moves beforehand
         let cloneBoard = this.clone();
+        let color = cloneBoard.virtualBoard[i][j].color
+        cloneBoard.getAvailableMoves(i,j, true);
         if(cloneBoard.moving(i,j)){
             cloneBoard.move(n,m);
         }
-        return cloneBoard.isOnCheck(this.virtualBoard[i][j].color);
+        return cloneBoard.isOnCheck(color);
     }
 
     // verifies if the mover is on checkmate
