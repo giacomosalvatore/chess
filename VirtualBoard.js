@@ -131,20 +131,6 @@ class VirtualBoard{
             }
         }
         
-        // if the moves is in the real virtual board
-        // !!! this code should be moved to script.js
-        if(this == virtual && this.isCheckMate()){
-            let winner = "white", loser = "black";
-            if(this.turn%2 == 0){
-                winner = "black";
-                loser = "white";
-            }
-            let string = "CheckMate!\n"+winner+" wins!";
-            if(!this.isOnCheck(loser)){
-                string = "StealMate"
-            }
-            setTimeout(() => {alert(string);}, 10);
-        }
     }
 
     // returns the board

@@ -36,6 +36,18 @@ board.showAvailableMoves = () => {
 
 }
 
+board.winMessage = () => {
+    let winner = "white", loser = "black";
+    if(virtual.turn%2 == 0){
+        winner = "black";
+        loser = "white";
+    }
+    let string = "CheckMate!\n"+winner+" wins!";
+    if(!virtual.isOnCheck(loser)){
+        string = "StealMate"
+    }
+    alert(string);
+}
 
 board.tileAvailable = (i,j) => {
     // adds a circle on the tile
@@ -53,6 +65,11 @@ board.tileAvailable = (i,j) => {
         }
         board.hideAvailableMoves();
         board.render();
+        
+        // checks for checkmate
+        if(virtual.isCheckMate()){
+            setTimeout(() => { board.winMessage();}, 10);
+        }
     }
     tile.addEventListener("click", tile.doMove);
     tile.removeEventListener("click", tile.tryMove);
@@ -133,6 +150,10 @@ promotion.render = (color) => {
             virtual.pawnPromote(pieces[i]);
             promotion.style.visibility = 'hidden';
             board.render();
+            // checks for checkmate
+            if(virtual.isCheckMate()){
+                setTimeout(() => { board.winMessage(); }, 10);
+            }
         }
     }
 }
