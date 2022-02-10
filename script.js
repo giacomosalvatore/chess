@@ -47,6 +47,10 @@ board.tileAvailable = (i,j) => {
     // moves the piece and makes the tiles unavailable
     tile.doMove = () => {
         virtual.move(i,j);
+        // checks if the game has stopped to choose a promotion for the pawn
+        if(virtual.pawnPromotion.value){
+            promotion.render(virtual.pawnPromotion.color);
+        }
         board.hideAvailableMoves();
         board.render();
     }
@@ -111,3 +115,24 @@ board.render = () => {
 board.draw();
 var virtual = new VirtualBoard();
 board.render();
+
+
+
+// renders the promotion choice for the pawn
+var promotion = document.getElementById("promotion");
+promotion.render = (color) => {
+    promotion.style.visibility = "visible";
+    let pieces = ["rook", "knight", "bishop", "queen"];
+    for(let i = 0; i<4; i++) {
+        let image = document.createElement("img");
+        image.src = 'pieces/' + color + '/' + pieces[i] + '.png';
+        let tile = promotion.childNodes[i*2+1];
+        tile.appendChild(image);
+        // promotes the pawn deactivates the choice
+        tile.onclick = () => {
+            virtual.pawnPromote(pieces[i]);
+            promotion.style.visibility = 'hidden';
+            board.render();
+        }
+    }
+}

@@ -8,6 +8,7 @@ class VirtualBoard{
             "white": {i: 7, j: 4},
             "black": {i: 0, j: 4},
         };
+        this.pawnPromotion = { value: false, };
     }
     
     // set up the virtual board with the pieces
@@ -57,7 +58,7 @@ class VirtualBoard{
     // set the moving piece if it can move, returns result
     moving(i,j){
         // checks if there's a piece in the clicked tile
-        if(this.virtualBoard[i][j].type != "empty"){
+        if(this.virtualBoard[i][j].type != "empty" && !this.pawnPromotion.value){
                
             let color = this.virtualBoard[i][j].color;
             let movingColor = "black";
@@ -97,6 +98,17 @@ class VirtualBoard{
             this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
 
+            // if the mover is a pawn that reached the end of the board
+            // since pawns can't move backwards and stard from the second row
+            // they can't land on thir side's first row
+            if(this.virtualBoard[i][j].type == "pawn" && (i == 0 || i == 7)){
+                // stops the game until pawnPromote is called
+                this.pawnPromotion.value = true;
+                this.pawnPromotion.color = this.virtualBoard[i][j].color;
+                this.pawnPromotion.i = i;
+                this.pawnPromotion.j = j;
+            }
+
             // tracks the king's position
             if(this.virtualBoard[i][j].type == "king"){
                 this.kingCoords[this.virtualBoard[i][j].color].i = i;
@@ -120,6 +132,7 @@ class VirtualBoard{
         }
         
         // if the moves is in the real virtual board
+        // !!! this code should be moved to script.js
         if(this == virtual && this.isCheckMate()){
             let winner = "white", loser = "black";
             if(this.turn%2 == 0){
@@ -498,6 +511,16 @@ class VirtualBoard{
         }
 
         return checkMate;
+    }
+
+    // promotes the set pawn to a specified piece
+    pawnPromote(pieceType){
+        if(!this.pawnPromotion.value){
+            return;
+        }
+        this.virtualBoard[this.pawnPromotion.i][this.pawnPromotion.j].type = pieceType;
+        // unpauses the game
+        this.pawnPromotion.value = false;
     }
     
     // clones the instance in a new instance
