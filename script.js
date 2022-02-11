@@ -36,17 +36,8 @@ board.showAvailableMoves = () => {
 
 }
 
-board.winMessage = () => {
-    let winner = "white", loser = "black";
-    if(virtual.turn%2 == 0){
-        winner = "black";
-        loser = "white";
-    }
-    let string = "CheckMate!\n"+winner+" wins!";
-    if(!virtual.isOnCheck(loser)){
-        string = "StealMate"
-    }
-    alert(string);
+board.gameMessage = (message) => {
+    alert(message);
 }
 
 board.tileAvailable = (i,j) => {
@@ -67,8 +58,9 @@ board.tileAvailable = (i,j) => {
         board.render();
         
         // checks for checkmate
-        if(virtual.isCheckMate()){
-            setTimeout(() => { board.winMessage();}, 10);
+        let message = virtual.getGameState();
+        if((message) != null){
+            setTimeout(() => { board.gameMessage(message);}, 10);
         }
     }
     tile.addEventListener("click", tile.doMove);

@@ -473,7 +473,7 @@ class VirtualBoard{
     }
 
     // verifies if the mover is on checkmate
-    isCheckMate(){
+    noMovesAvailable(){
         let checkMate = true;
         let pColor = "white";
         if(this.turn%2 == 1){
@@ -497,6 +497,33 @@ class VirtualBoard{
         }
 
         return checkMate;
+    }
+
+    getGameState() {
+        let loseColor = "white", winColor = "black";
+        if(this.turn%2 == 1){
+            loseColor = "black";
+            winColor = "white";
+        }
+
+        // if the mover has no moves left it's either checkmate or stealmate
+        if(this.noMovesAvailable()){
+            if(this.isOnCheck(loseColor)){
+                return "Checkmate! "+ winColor + " wins!";
+            }
+            else{
+                return "Stealmate";
+            }
+        }
+
+        // draw
+
+        // three folds repetitions 
+
+        // insufficient material
+
+        // 50 moves 
+
     }
 
     // promotes the set pawn to a specified piece
