@@ -519,6 +519,10 @@ class VirtualBoard{
         // draw
 
         // three folds repetitions 
+        if(this.threefoldRepetition()){
+            this.gameEnded = true;
+            return "Draw by three fold repetition";
+        }
 
         // insufficient material
 
@@ -531,6 +535,7 @@ class VirtualBoard{
 
     }
 
+    // checks the board for draw for insufficient material
     insufficientMaterial(){
         let insufficient = true;
         for(let i = 0, whiteP = 0, blackP = 0; i < 8; i++){
@@ -554,6 +559,66 @@ class VirtualBoard{
             }
         }
         return insufficient;
+    }
+
+    // checks the board for draw for three fold repetition
+    threefoldRepetition(){
+        // if the array doesn't exists it creates it
+        if(this.threefoldMoves == null){
+            this.threefoldMoves = [];
+            this.threefoldMoves.repeatedMoves = [];
+        }
+
+        // checks the positions already repeated 
+        for(let t = 0; t< this.threefoldMoves.repeatedMoves.length; t++){
+            let repeated = this.threefoldMoves.repeatedMoves[t];
+            let equal = true;
+            for(let i = 0; i < 8 && equal; i++){
+                for(let j = 0; j < 8 && equal; j++){
+                    let tile = this.virtualBoard[i][j];
+                    if(tile.type != repeated[i][j].type || tile.color != repeated[i][j].color){
+                        equal = false;
+                    }
+                }
+            }
+            if(equal){
+                repeated.times ++;
+                if(repeated.times >= 3){
+                    return true;
+                }
+            }
+        }
+        
+        if(this.threefoldMoves.length >= 4){
+            // gets the position from three moves ago
+            let tpa = this.threefoldMoves.pop();
+            // checks if the position is equal to the current one
+            let equals = true;
+            for(let i = 0; i < 8 && equals; i++){
+                for(let j = 0; j < 8 && equals; j++){
+                    let tile = this.virtualBoard[i][j];
+                    if(tile.type != tpa[i][j].type || tile.color != tpa[i][j].color){
+                        equals = false;
+                    }
+                }
+            }
+
+            // if it's equal adds the position to the repeated array and sets the count to 0
+            if(equals){
+                let repeated = this.clone().virtualBoard;
+                repeated.times = 0;
+                this.threefoldMoves.repeatedMoves.push(repeated);
+            }
+            // adds the position to the last moves
+            else{
+                this.threefoldMoves.unshift(this.clone().virtualBoard);
+            }
+
+        }
+        else{
+            this.threefoldMoves.unshift(this.clone().virtualBoard);
+        }
+        return false;
     }
 
     // promotes the set pawn to a specified piece
