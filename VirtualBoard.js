@@ -101,7 +101,7 @@ class VirtualBoard{
                 this.lastProgress = this.turn;
 
                 // deletes recorded repeated moves
-                this.threefoldMoves.repeated = null;
+                this.threefoldMoves = null;
             }
 
             this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
@@ -578,8 +578,6 @@ class VirtualBoard{
         // if the array doesn't exists it creates it
         if(this.threefoldMoves == null){
             this.threefoldMoves = [];
-        }
-        if(this.threefoldMoves.repeatedMoves == null){
             this.threefoldMoves.repeatedMoves = [];
         }
 
