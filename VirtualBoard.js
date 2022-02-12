@@ -58,7 +58,7 @@ class VirtualBoard{
     // set the moving piece if it can move, returns result
     moving(i,j){
         // checks if there's a piece in the clicked tile
-        if(this.virtualBoard[i][j].type != "empty" && !this.pawnPromotion.value){
+        if(this.virtualBoard[i][j].type != "empty" && !this.pawnPromotion.value && !this.gameEnded){
                
             let color = this.virtualBoard[i][j].color;
             let movingColor = "black";
@@ -522,8 +522,38 @@ class VirtualBoard{
 
         // insufficient material
 
+        if(this.insufficientMaterial()){
+            this.gameEnded = true;
+            return "Draw by insufficient material";
+        }
+
         // 50 moves 
 
+    }
+
+    insufficientMaterial(){
+        let insufficient = true;
+        for(let i = 0, whiteP = 0, blackP = 0; i < 8; i++){
+            for(let j = 0; j < 8 && insufficient; j++){
+                let tile = this.virtualBoard[i][j];
+                if(tile.type != "empty" && tile.type != "king"){
+                    let adding = 2;
+                    if(tile.type == "bishop" || tile.type == "knight"){
+                        adding--;
+                    }
+
+                    if(tile.color == "black"){
+                        blackP += adding;
+                    }
+                    else if(tile.color == "white"){
+                        whiteP += adding;
+                    }
+
+                    insufficient = whiteP < 2 && blackP < 2;
+                }
+            }
+        }
+        return insufficient;
     }
 
     // promotes the set pawn to a specified piece
