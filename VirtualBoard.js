@@ -95,6 +95,15 @@ class VirtualBoard{
             this.virtualBoard[i][j] = { type: "empty" };
         }
         else{
+
+            // tracks last progress
+            if(this.virtualBoard[i][j].type != "empty" || this.virtualBoard[this.movingPiece.i][this.movingPiece.j].type == "pawn"){
+                this.lastProgress = this.turn;
+
+                // deletes recorded repeated moves
+                this.threefoldMoves.repeated = null;
+            }
+
             this.virtualBoard[i][j] = this.virtualBoard[this.movingPiece.i][this.movingPiece.j];
             this.virtualBoard[this.movingPiece.i][this.movingPiece.j] = { type: "empty" };
 
@@ -525,13 +534,16 @@ class VirtualBoard{
         }
 
         // insufficient material
-
         if(this.insufficientMaterial()){
             this.gameEnded = true;
             return "Draw by insufficient material";
         }
 
         // 50 moves 
+        if(this.turn - this.lastProgress >= 50){
+            this.gameEnded = true;
+            return "Draw by 50 moves without progress";
+        }
 
     }
 
@@ -566,6 +578,8 @@ class VirtualBoard{
         // if the array doesn't exists it creates it
         if(this.threefoldMoves == null){
             this.threefoldMoves = [];
+        }
+        if(this.threefoldMoves.repeatedMoves == null){
             this.threefoldMoves.repeatedMoves = [];
         }
 
