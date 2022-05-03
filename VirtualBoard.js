@@ -78,7 +78,7 @@ class VirtualBoard{
         return false;
     }
 
-    // moves a piece 
+    // moves the moving piece to the selected spot
     move(i,j) {
 
         // castling
@@ -481,7 +481,7 @@ class VirtualBoard{
         return cloneBoard.isOnCheck(color);
     }
 
-    // verifies if the mover is on checkmate
+    // verifies if the mover is on checkmate or stealmate
     noMovesAvailable(){
         let checkMate = true;
         let pColor = "white";
@@ -508,6 +508,7 @@ class VirtualBoard{
         return checkMate;
     }
 
+    // returns the state of the game
     getGameState() {
         let loseColor = "white", winColor = "black";
         if(this.turn%2 == 1){
@@ -643,7 +644,7 @@ class VirtualBoard{
         this.pawnPromotion.value = false;
     }
     
-    // clones the instance in a new instance
+    // clones the instance of the board in a new instance
     clone(){
         let vb = new VirtualBoard();
         for(let i = 0; i < 8; i++){
