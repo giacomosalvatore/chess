@@ -1,10 +1,10 @@
 
+var board = document.getElementById("board");
+
 // clones an object
 var clone = object => {
     return JSON.parse(JSON.stringify(object));
 }
-
-var board = document.getElementById("board");
 
 // hide available moves
 board.hideAvailableMoves = () => {
